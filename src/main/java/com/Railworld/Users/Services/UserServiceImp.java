@@ -1,6 +1,7 @@
 package com.Railworld.Users.Services;
 
 
+import com.Railworld.Users.DTO.BothRequestDTO;
 import com.Railworld.Users.DTO.UserRequestDTO;
 import com.Railworld.Users.Models.Course;
 import com.Railworld.Users.Models.User;
@@ -25,6 +26,37 @@ public class UserServiceImp implements UserService {
     @Override
     public User getUser(Long id){
          return userRepository.getById(id);
+    }
+
+    @Override
+    public void addBoth(BothRequestDTO bothRequestDTO) {
+        List<String> userNames  = bothRequestDTO.getUsers();
+        List<String> courseNames = bothRequestDTO.getCourses();
+
+        for(String userName: userNames){
+            User user = userRepository.findUserByUserName(userName);
+            if(user == null){
+                user = new User();
+                user.setUserName(userName);
+                userRepository.save(user);
+            }
+
+            for(String courseName: courseNames){
+                Course course = courseRepository.findCourseByCourseName(courseName);
+                if(course == null){
+                    course = new Course();
+                    course.setCourseName(courseName);
+                    courseRepository.save(course);
+                }
+
+                if(!user.getCourses().contains(course)){
+                    user.addCourse(course);
+                    userRepository.save(user);
+                }
+            }
+
+        }
+
     }
 
     @Override
